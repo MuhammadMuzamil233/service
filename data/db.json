@@ -1,0 +1,787 @@
+{
+  "users": [
+    {
+      "id": "usr_admin_01",
+      "name": "Super Admin",
+      "email": "admin@proservice.com",
+      "password": "$2b$10$J.mRhXn9qcf/MhcbMaFi3.JfFjZA5dduQg3gd7NiAUi2by3fT.Bsq",
+      "role": "admin",
+      "createdAt": "2026-09-08T12:58:54.895Z"
+    },
+    {
+      "id": "usr_tech-101",
+      "name": "Engr. Zohaib (CCTV Tech)",
+      "email": "zohaib@proservice.com",
+      "password": "$2b$10$1FwGC.p3qgbAAmNSyTK1HOBTo8FrZs0E3NXM/jJU5L.Uxhj3JkxiG",
+      "role": "technician",
+      "technicianId": "TECH-101",
+      "specialty": "camera",
+      "phone": "0301-1122334",
+      "createdAt": "2026-09-08T13:15:33.535Z"
+    },
+    {
+      "id": "usr_tech-102",
+      "name": "Hamza IT Specialist",
+      "email": "hamza@proservice.com",
+      "password": "$2b$10$hnu7C6mNpS58y37/dJm.leANpajj6wfqCTkkiIp9G7XpXelM0AUV6",
+      "role": "technician",
+      "technicianId": "TECH-102",
+      "specialty": "computer",
+      "phone": "0322-4455667",
+      "createdAt": "2026-09-08T13:15:33.658Z"
+    },
+    {
+      "id": "usr_tech-103",
+      "name": "Ustad Aslam Electrician",
+      "email": "aslam@proservice.com",
+      "password": "$2b$10$Dfvsga.NAEBLip6Y80Ei0O4wYdy166/E46JMDCLMUHDKXGqSSd38m",
+      "role": "technician",
+      "technicianId": "TECH-103",
+      "specialty": "electricity",
+      "phone": "0333-8899001",
+      "createdAt": "2026-09-08T13:15:33.774Z"
+    },
+    {
+      "id": "cust_1788875117801_145",
+      "name": "Ali Khan",
+      "email": "alikhantest1788875117601@gmail.com",
+      "password": "$2b$10$AFS9Hr5CrokubxqKnM7CQ.47z1Y/PZWY4tFYSXueoUVnd.IcrSDtK",
+      "phone": "0300-9876543",
+      "role": "customer",
+      "emailVerified": true,
+      "createdAt": "2026-09-08T13:45:17.801Z",
+      "updatedAt": "2026-09-08T13:45:18.186Z"
+    },
+    {
+      "id": "cust_1788875175733_919",
+      "name": "Ali Khan",
+      "email": "alikhantest1788875175545@gmail.com",
+      "password": "$2b$10$Nv2.mmaTs.cHm4EPM8/k6OzIHy8u4gXHzqp3kbUxXe5lV1wujbDG6",
+      "phone": "0300-9876543",
+      "role": "customer",
+      "emailVerified": true,
+      "createdAt": "2026-09-08T13:46:15.733Z",
+      "updatedAt": "2026-09-08T13:46:16.244Z"
+    },
+    {
+      "id": "cust_unique_test_1788875957222",
+      "name": "Unique User",
+      "email": "unique.customer.1788875957221@gmail.com",
+      "password": "$2b$10$gRfwQmmph48fDhbM3ltQMe6WOrkKBIpz6AM4DF/P8.wqHwk64EvyS",
+      "phone": "03217654321",
+      "role": "customer",
+      "createdAt": "2026-09-08T13:59:17.345Z"
+    },
+    {
+      "id": "cust_1788877251721_112",
+      "name": "muzii",
+      "email": "muzamilr078@gmail.com",
+      "password": "$2b$10$5HbPE6OvCxMHF9kHmaVHw.LqkS2Q/cCYNc3oYkd253IPiudiQrDhC",
+      "phone": "03115873530",
+      "role": "customer",
+      "emailVerified": true,
+      "createdAt": "2026-09-08T14:20:51.721Z"
+    },
+    {
+      "id": "usr_tech-104",
+      "name": "Naveed Printer Expert",
+      "email": "naveed@proservice.com",
+      "password": "$2b$10$Vrxyd.hOpAeJ9PZagYkyl.6bTzO8duuIrYFMR7k2cWRQ1u5Rvn5SS",
+      "role": "technician",
+      "technicianId": "TECH-104",
+      "specialty": "printer",
+      "phone": "0345-6677889",
+      "createdAt": "2026-09-08T14:42:52.436Z"
+    },
+    {
+      "id": "usr_tech-105",
+      "name": "Engr. Salman (Camera & Network)",
+      "email": "salman@proservice.com",
+      "password": "$2b$10$gIv5VYlByLDmzL7Eihm0g.F8fU0pioJ6rhEEn5mJN3jbFICMR6C2a",
+      "role": "technician",
+      "technicianId": "TECH-105",
+      "specialty": "camera",
+      "phone": "0300-5556677",
+      "createdAt": "2026-09-08T14:42:52.536Z"
+    }
+  ],
+  "services": [
+    {
+      "id": "camera",
+      "title": "Camera Installation (CCTV)",
+      "urduTitle": "سی سی ٹی وی کیمرہ انسٹالیشن",
+      "icon": "video",
+      "badge": "High Security",
+      "shortDesc": "Complete security camera setup, IP cameras, DVR/NVR configuration & mobile live-view access.",
+      "features": [
+        "HD, 2K & 4K IP Camera Installation",
+        "Night Vision & Motion Detection Cameras",
+        "DVR / NVR Storage Setup & Cable Concealing",
+        "Live Mobile App Viewing (Android & iOS)",
+        "Maintenance, Repair & Relocation"
+      ],
+      "startingPrice": "Rs. 2,500",
+      "basePriceNum": 2500,
+      "turnaround": "Same Day / 2-4 Hours",
+      "emergencyAvailable": true
+    },
+    {
+      "id": "computer",
+      "title": "Computer & Laptop Repair",
+      "urduTitle": "کمپیوٹر اور لیپ ٹاپ ریپیئرنگ",
+      "icon": "laptop",
+      "badge": "Hardware & Software",
+      "shortDesc": "Expert repair for laptops, desktops, gaming rigs, Mac & Windows. Hardware replacement & chip-level fix.",
+      "features": [
+        "Windows & Mac OS Setup & Driver Installation",
+        "SSD & RAM Speed Upgrade (Boot in 5s)",
+        "Motherboard & Power IC Chip Repair",
+        "Broken Screen, Battery & Keyboard Replacement",
+        "Virus Removal & Lost Data Recovery"
+      ],
+      "startingPrice": "Rs. 1,500",
+      "basePriceNum": 1500,
+      "turnaround": "1-3 Hours / On-Site Available",
+      "emergencyAvailable": true
+    },
+    {
+      "id": "electricity",
+      "title": "Electricity Problem & Wiring",
+      "urduTitle": "الیکٹریکل اور وائرنگ سروسز",
+      "icon": "zap",
+      "badge": "24/7 Emergency",
+      "shortDesc": "Certified electric emergency assistance. Fix short circuits, faulty breakers, wiring, UPS & inverter.",
+      "features": [
+        "24/7 Emergency Short Circuit Diagnostics",
+        "Complete Home & Commercial Concealed Wiring",
+        "Distribution Box (DB) & Breaker Replacement",
+        "UPS, Battery & Solar Inverter Wiring",
+        "Ceiling Fans, SMD Lights & Appliance Connection"
+      ],
+      "startingPrice": "Rs. 1,200",
+      "basePriceNum": 1200,
+      "turnaround": "Within 30-45 Minutes",
+      "emergencyAvailable": true
+    },
+    {
+      "id": "printer",
+      "title": "Printer Problem & Repair",
+      "urduTitle": "پرنٹر ریپیئرنگ اور ٹونر ریفل",
+      "icon": "printer",
+      "badge": "All Major Brands",
+      "shortDesc": "Fixing paper jams, faded prints, toner refilling, wireless network printing and driver errors.",
+      "features": [
+        "Paper Jam & Roller Replacement",
+        "Toner Refilling & Cartridge Chip Reset",
+        "Printhead Deep Cleaning & Alignment",
+        "Wi-Fi / Network Multi-PC Sharing Setup",
+        "Motherboard, Power Supply & Sensor Fix"
+      ],
+      "startingPrice": "Rs. 1,000",
+      "basePriceNum": 1000,
+      "turnaround": "Same Day Service",
+      "emergencyAvailable": false
+    }
+  ],
+  "technicians": [
+    {
+      "id": "TECH-101",
+      "name": "Engr. Zohaib (CCTV Tech)",
+      "phone": "0301-1122334",
+      "email": "zohaib@proservice.com",
+      "specialty": "camera",
+      "specialtyLabel": "Camera & CCTV Specialist",
+      "rating": 4.9,
+      "jobsCompleted": 142,
+      "status": "available",
+      "address": "Lahore, Pakistan",
+      "updatedAt": "2026-09-08T14:27:05.967Z"
+    },
+    {
+      "id": "TECH-102",
+      "name": "Hamza IT Specialist",
+      "phone": "0322-4455667",
+      "email": "hamza@proservice.com",
+      "specialty": "computer",
+      "specialtyLabel": "Computer & Laptop Expert",
+      "rating": 4.8,
+      "jobsCompleted": 198,
+      "status": "available",
+      "address": "Karachi, Pakistan"
+    },
+    {
+      "id": "TECH-103",
+      "name": "Ustad Aslam Electrician",
+      "phone": "0333-8899001",
+      "email": "aslam@proservice.com",
+      "specialty": "electricity",
+      "specialtyLabel": "Certified Electrician (24/7)",
+      "rating": 5,
+      "jobsCompleted": 310,
+      "status": "available",
+      "address": "Islamabad / Rawalpindi, Pakistan"
+    }
+  ],
+  "tickets": [
+    {
+      "id": "TKT-94586",
+      "customerId": "cust_1788875175733_919",
+      "customerEmail": "alikhantest1788875175545@gmail.com",
+      "customerName": "Ali Khan",
+      "phone": "0300-9876543",
+      "serviceType": "camera",
+      "serviceName": "Camera Installation (CCTV)",
+      "address": "House #12, F-8/2, Islamabad",
+      "problemDescription": "4 CCTV cameras installation needed.",
+      "urgency": "Emergency",
+      "status": "Assigned",
+      "assignedTo": "Engr. Zohaib (CCTV Tech)",
+      "assignedTechId": "TECH-101",
+      "estimatedCost": 2500,
+      "createdAt": "2026-09-08T13:46:15.767Z",
+      "updatedAt": "2026-09-08T13:46:15.767Z",
+      "timeline": [
+        {
+          "status": "Pending",
+          "timestamp": "2026-09-08T13:46:15.767Z",
+          "note": "Service booking created and verified."
+        },
+        {
+          "status": "Assigned",
+          "timestamp": "2026-09-08T13:46:15.767Z",
+          "note": "Assigned to Engr. Zohaib (CCTV Tech) (Camera & CCTV Specialist)."
+        }
+      ],
+      "notes": "Technician Engr. Zohaib (CCTV Tech) assigned. Contact: 0301-1122334"
+    },
+    {
+      "id": "TKT-67528",
+      "customerName": "Ali Khan",
+      "phone": "0300-9876543",
+      "serviceType": "camera",
+      "serviceName": "Camera Installation (CCTV)",
+      "address": "House #12, F-8/2, Islamabad",
+      "problemDescription": "4 CCTV cameras installation needed.",
+      "urgency": "Emergency",
+      "status": "Assigned",
+      "assignedTo": "Engr. Zohaib (CCTV Tech)",
+      "assignedTechId": "TECH-101",
+      "estimatedCost": 2500,
+      "createdAt": "2026-09-08T13:45:17.838Z",
+      "updatedAt": "2026-09-08T13:45:17.838Z",
+      "timeline": [
+        {
+          "status": "Pending",
+          "timestamp": "2026-09-08T13:45:17.838Z",
+          "note": "Service booking created and verified."
+        },
+        {
+          "status": "Assigned",
+          "timestamp": "2026-09-08T13:45:17.838Z",
+          "note": "Assigned to Engr. Zohaib (CCTV Tech) (Camera & CCTV Specialist)."
+        }
+      ],
+      "notes": "Technician Engr. Zohaib (CCTV Tech) assigned. Contact: 0301-1122334"
+    },
+    {
+      "id": "TKT-12663",
+      "customerName": "Sheikh Waqas",
+      "phone": "0321-4433221",
+      "serviceType": "camera",
+      "serviceName": "Camera Installation (CCTV)",
+      "address": "Main Boulevard, Gulberg, Lahore",
+      "problemDescription": "Need 8 IP cameras configured with remote phone viewing.",
+      "urgency": "Emergency",
+      "status": "Completed",
+      "assignedTo": "Engr. Bilal Farooq",
+      "assignedTechId": "TECH-930",
+      "estimatedCost": 6500,
+      "createdAt": "2026-09-08T13:33:25.354Z",
+      "updatedAt": "2026-09-08T13:33:25.443Z",
+      "timeline": [
+        {
+          "status": "Pending",
+          "timestamp": "2026-09-08T13:33:25.354Z",
+          "note": "Service booking created and verified."
+        },
+        {
+          "status": "Assigned",
+          "timestamp": "2026-09-08T13:33:25.354Z",
+          "note": "Assigned to Engr. Bilal Farooq (Camera & CCTV Specialist)."
+        },
+        {
+          "status": "In Progress",
+          "timestamp": "2026-09-08T13:33:25.433Z",
+          "note": "Technician Engr. Bilal Farooq accepted job and is on the way / working. Note: Arrived at Gulberg store, running Cat6 cables."
+        },
+        {
+          "status": "Completed",
+          "timestamp": "2026-09-08T13:33:25.443Z",
+          "note": "Job successfully completed by Engr. Bilal Farooq. Note: All 8 Dahua cameras installed and mobile app live view tested on 3 phones."
+        }
+      ],
+      "notes": "All 8 Dahua cameras installed and mobile app live view tested on 3 phones.",
+      "partsReplaced": "8x Dahua 4K Dome, 1x 8-port PoE Switch, 150m Cat6 cable"
+    },
+    {
+      "id": "TKT-55355",
+      "customerName": "Sheikh Waqas",
+      "phone": "0321-4433221",
+      "serviceType": "camera",
+      "serviceName": "Camera Installation (CCTV)",
+      "address": "Main Boulevard, Gulberg, Lahore",
+      "problemDescription": "Need 8 IP cameras configured with remote phone viewing.",
+      "urgency": "Emergency",
+      "status": "Completed",
+      "assignedTo": "Engr. Bilal Farooq",
+      "assignedTechId": "TECH-975",
+      "estimatedCost": 6500,
+      "createdAt": "2026-09-08T13:29:31.904Z",
+      "updatedAt": "2026-09-08T13:29:31.987Z",
+      "timeline": [
+        {
+          "status": "Pending",
+          "timestamp": "2026-09-08T13:29:31.904Z",
+          "note": "Service booking created and verified."
+        },
+        {
+          "status": "Assigned",
+          "timestamp": "2026-09-08T13:29:31.904Z",
+          "note": "Assigned to Engr. Bilal Farooq (Camera & CCTV Specialist)."
+        },
+        {
+          "status": "In Progress",
+          "timestamp": "2026-09-08T13:29:31.979Z",
+          "note": "Technician Engr. Bilal Farooq accepted job and is on the way / working. Note: Arrived at Gulberg store, running Cat6 cables."
+        },
+        {
+          "status": "Completed",
+          "timestamp": "2026-09-08T13:29:31.987Z",
+          "note": "Job successfully completed by Engr. Bilal Farooq. Note: All 8 Dahua cameras installed and mobile app live view tested on 3 phones."
+        }
+      ],
+      "notes": "All 8 Dahua cameras installed and mobile app live view tested on 3 phones.",
+      "partsReplaced": "8x Dahua 4K Dome, 1x 8-port PoE Switch, 150m Cat6 cable"
+    },
+    {
+      "id": "TKT-15774",
+      "customerName": "Khurram Shahzad",
+      "phone": "0300-7766554",
+      "serviceType": "electricity",
+      "serviceName": "Electricity Problem & Wiring",
+      "address": "Street 9, Sector G-11/3, Islamabad",
+      "problemDescription": "Short circuit in kitchen, main breaker sparks.",
+      "urgency": "Emergency",
+      "status": "Assigned",
+      "assignedTo": "Ustad Aslam Electrician",
+      "assignedTechId": "TECH-103",
+      "estimatedCost": 1200,
+      "createdAt": "2026-09-08T13:15:58.111Z",
+      "updatedAt": "2026-09-08T13:15:58.148Z",
+      "timeline": [
+        {
+          "status": "Pending",
+          "timestamp": "2026-09-08T13:15:58.111Z",
+          "note": "Service booking created and verified."
+        },
+        {
+          "status": "Assigned",
+          "timestamp": "2026-09-08T13:15:58.111Z",
+          "note": "Automatically assigned to Ustad Aslam Electrician (Certified Electrician (24/7))."
+        }
+      ],
+      "notes": "Customer at home. Take 32A breaker and wire testing tool."
+    },
+    {
+      "id": "TKT-69074",
+      "customerName": "muzamil",
+      "phone": "03225173394",
+      "serviceType": "computer",
+      "serviceName": "Computer & Laptop Repair",
+      "address": "ddd",
+      "problemDescription": "ddddd",
+      "urgency": "Standard",
+      "status": "Assigned",
+      "assignedTo": "Hamza IT Specialist",
+      "assignedTechId": "TECH-102",
+      "estimatedCost": 1500,
+      "createdAt": "2026-09-08T13:07:37.985Z",
+      "updatedAt": "2026-09-08T13:07:37.985Z",
+      "timeline": [
+        {
+          "status": "Pending",
+          "timestamp": "2026-09-08T13:07:37.985Z",
+          "note": "Service booking created and verified."
+        },
+        {
+          "status": "Assigned",
+          "timestamp": "2026-09-08T13:07:37.985Z",
+          "note": "Automatically assigned to Hamza IT Specialist (Computer & Laptop Expert)."
+        }
+      ],
+      "notes": "Technician Hamza IT Specialist assigned. Contact: 0322-4455667"
+    },
+    {
+      "id": "TKT-29279",
+      "customerName": "Kashif Mehmood",
+      "phone": "0300-4443322",
+      "serviceType": "camera",
+      "serviceName": "Camera Installation (CCTV)",
+      "address": "DHA Phase 5, Lahore",
+      "problemDescription": "Need 6 IP Cameras installed urgently for new clinic.",
+      "urgency": "Emergency",
+      "status": "In Progress",
+      "assignedTo": "Engr. Zohaib (CCTV Tech)",
+      "assignedTechId": "TECH-101",
+      "estimatedCost": 2500,
+      "createdAt": "2026-09-08T13:00:31.537Z",
+      "updatedAt": "2026-09-08T13:00:31.560Z",
+      "timeline": [
+        {
+          "status": "Pending",
+          "timestamp": "2026-09-08T13:00:31.537Z",
+          "note": "Service booking created and verified."
+        },
+        {
+          "status": "Assigned",
+          "timestamp": "2026-09-08T13:00:31.537Z",
+          "note": "Automatically assigned to Engr. Zohaib (CCTV Tech) (Camera & CCTV Specialist)."
+        },
+        {
+          "status": "In Progress",
+          "timestamp": "2026-09-08T13:00:31.560Z",
+          "note": "Technician dispatched with 6 Hikvision IP Cameras."
+        }
+      ],
+      "notes": "Technician dispatched with 6 Hikvision IP Cameras."
+    },
+    {
+      "id": "TKT-36215",
+      "customerName": "Zubair Ahmed",
+      "phone": "0300-8889900",
+      "serviceType": "camera",
+      "serviceName": "Camera Installation (CCTV)",
+      "address": "Main Boulevard Gulberg, Lahore",
+      "problemDescription": "Need 8 4K CCTV Cameras installed in my warehouse with remote viewing on 3 phones.",
+      "urgency": "Standard",
+      "status": "Completed",
+      "assignedTo": "Engr. Salman (Camera Specialist)",
+      "createdAt": "2026-09-08T10:21:59.190Z",
+      "notes": "Technician dispatched with 8 Dahua 4K cameras and 8-channel NVR."
+    },
+    {
+      "id": "TKT-82910",
+      "customerName": "Muhammad Ali",
+      "phone": "0300-1234567",
+      "serviceType": "camera",
+      "serviceName": "Camera Installation & CCTV Setup",
+      "address": "House #45, Street 12, Gulberg III, Lahore",
+      "problemDescription": "Want to install 4 IP Dome Cameras with 1TB NVR and mobile live view setup.",
+      "urgency": "Standard",
+      "status": "Completed",
+      "assignedTo": "Engr. Zohaib (CCTV Tech)",
+      "createdAt": "2026-09-08T05:21:59.190Z",
+      "notes": "Technician on the way with Dahua 4K kit."
+    },
+    {
+      "id": "TKT-82911",
+      "customerName": "Ayesha Khan",
+      "phone": "0321-9876543",
+      "serviceType": "computer",
+      "serviceName": "Computer / Laptop Repair",
+      "address": "Office #204, Regent Plaza, Karachi",
+      "problemDescription": "Dell Latitude laptop screen flickering and Windows blue screen crashing.",
+      "urgency": "Emergency",
+      "status": "Completed",
+      "assignedTo": "Hamza IT Specialist",
+      "createdAt": "2026-09-08T08:21:59.190Z",
+      "notes": "Urgent office laptop. Diagnostics scheduled."
+    },
+    {
+      "id": "TKT-82912",
+      "customerName": "Tariq Mahmood",
+      "phone": "0333-5554321",
+      "serviceType": "electricity",
+      "serviceName": "Electricity Problem & Emergency Wiring",
+      "address": "Sector F-8/2, Islamabad",
+      "problemDescription": "Main circuit breaker tripping repeatedly, master bedroom sockets sparked.",
+      "urgency": "Emergency",
+      "status": "Completed",
+      "assignedTo": null,
+      "createdAt": "2026-09-08T09:21:59.190Z",
+      "notes": ""
+    },
+    {
+      "id": "TKT-82913",
+      "customerName": "Bilal Ahmed",
+      "phone": "0345-7778899",
+      "serviceType": "printer",
+      "serviceName": "Printer Repair & Maintenance",
+      "address": "Shop 14, Commercial Market, Rawalpindi",
+      "problemDescription": "HP LaserJet 1020 recurring paper jam and dirty vertical black streaks on printout.",
+      "urgency": "Scheduled",
+      "status": "Completed",
+      "assignedTo": "Naveed Printer Expert",
+      "createdAt": "2026-09-07T10:21:59.190Z",
+      "notes": "Teflon sleeve replaced and toner drum cleaned. Tested OK."
+    }
+  ],
+  "chats": {
+    "test_customer_session_01": {
+      "sessionId": "test_customer_session_01",
+      "customerName": "Imran Khan",
+      "phone": "0312-3456789",
+      "status": "live",
+      "createdAt": "2026-09-08T10:22:48.863Z",
+      "updatedAt": "2026-09-08T10:22:50.502Z",
+      "unreadCount": 2,
+      "messages": [
+        {
+          "id": "msg-welcome",
+          "sender": "bot",
+          "text": "Assalam-o-Alaikum! 🌟 ProService Customer Support me khushamdeed. Mai aapki kya madad kar sakta hoon?",
+          "quickReplies": [
+            "📹 Camera Installation",
+            "💻 Computer Repair",
+            "⚡ Electricity Problem",
+            "🖨️ Printer Problem",
+            "👨‍💼 Live Agent"
+          ],
+          "timestamp": "2026-09-08T10:22:48.863Z"
+        },
+        {
+          "id": "msg-1788862968869",
+          "sender": "customer",
+          "text": "Camera installation ke charges aur packages kya hain?",
+          "timestamp": "2026-09-08T10:22:48.869Z"
+        },
+        {
+          "id": "bot-1788862969477",
+          "sender": "bot",
+          "text": "📹 **CCTV & Camera Installation Services**:\n\n• HD, 2K & 4K IP Camera Setup\n• Night Vision & ColorVu Cameras\n• Mobile App Live-View configuration\n• DVR/NVR Hard Drive Storage Setup\n• Home, Shop, Warehouse & Office installations\n\n💰 **Starting Price**: Rs. 2,500 (Wiring & Installation)\n⏱️ **Availability**: Same day technician visit available.\n\nKya aap camera lagwana chahte hain ya quotation chahiye?",
+          "quickReplies": [
+            "Book Camera Service",
+            "Camera Prices",
+            "Talk to CCTV Tech",
+            "Main Menu"
+          ],
+          "timestamp": "2026-09-08T10:22:49.477Z"
+        },
+        {
+          "id": "msg-1788862969897",
+          "sender": "customer",
+          "text": "Mujhe kisi human agent se rabata karna hai",
+          "timestamp": "2026-09-08T10:22:49.897Z"
+        },
+        {
+          "id": "bot-1788862970502",
+          "sender": "bot",
+          "text": "Bilkul! Hum aapko humare Live Support Agent se connect kar rahe hain. Please 1 minute intezar karein, hamara representative abhi aap se rabta karega.",
+          "quickReplies": [
+            "Cancel Agent",
+            "Call Helpline 0300-9998877",
+            "Main Menu"
+          ],
+          "timestamp": "2026-09-08T10:22:50.502Z"
+        }
+      ],
+      "lastMessage": "Mujhe kisi human agent se rabata karna hai"
+    },
+    "cust_uf0gv6umtsiuh36": {
+      "sessionId": "cust_uf0gv6umtsiuh36",
+      "customerName": "muzamil",
+      "phone": "03225173394",
+      "status": "live",
+      "createdAt": "2026-09-08T10:23:25.740Z",
+      "updatedAt": "2026-09-08T10:24:56.311Z",
+      "unreadCount": 2,
+      "messages": [
+        {
+          "id": "msg-welcome",
+          "sender": "bot",
+          "text": "Assalam-o-Alaikum! 🌟 ProService Customer Support me khushamdeed. Mai aapki kya madad kar sakta hoon?",
+          "quickReplies": [
+            "📹 Camera Installation",
+            "💻 Computer Repair",
+            "⚡ Electricity Problem",
+            "🖨️ Printer Problem",
+            "👨‍💼 Live Agent"
+          ],
+          "timestamp": "2026-09-08T10:23:25.740Z"
+        },
+        {
+          "id": "msg-1788863039100",
+          "sender": "customer",
+          "text": "Assalam-o-Alaikum, mujhe services ke baray me janana hai.",
+          "timestamp": "2026-09-08T10:23:59.100Z"
+        },
+        {
+          "id": "bot-1788863039712",
+          "sender": "bot",
+          "text": "Shukriya! Mai aapka sawal samajh raha hoon. Kya aap Camera, Computer, Electricity, ya Printer service ke baray me janana chahte hain?\n\nAap niche diye gaye options me se chun sakte hain ya humare **Live Agent** se direct baat kar sakte hain.",
+          "quickReplies": [
+            "📹 Camera Installation",
+            "💻 Computer Repair",
+            "⚡ Electricity Problem",
+            "🖨️ Printer Problem",
+            "👨‍💼 Talk to Live Agent"
+          ],
+          "timestamp": "2026-09-08T10:23:59.712Z"
+        },
+        {
+          "id": "msg-1788863095702",
+          "sender": "customer",
+          "text": "Mujhe live support agent se rabata karna hai.",
+          "timestamp": "2026-09-08T10:24:55.702Z"
+        },
+        {
+          "id": "bot-1788863096311",
+          "sender": "bot",
+          "text": "Bilkul! Hum aapko humare Live Support Agent se connect kar rahe hain. Please 1 minute intezar karein, hamara representative abhi aap se rabta karega.",
+          "quickReplies": [
+            "Cancel Agent",
+            "Call Helpline 0300-9998877",
+            "Main Menu"
+          ],
+          "timestamp": "2026-09-08T10:24:56.311Z"
+        }
+      ],
+      "lastMessage": "Mujhe live support agent se rabata karna hai."
+    },
+    "test_session_1788872527895": {
+      "sessionId": "test_session_1788872527895",
+      "customerName": "Test Customer",
+      "phone": "0300-1122334",
+      "status": "bot",
+      "createdAt": "2026-09-08T13:02:07.951Z",
+      "updatedAt": "2026-09-08T13:02:08.569Z",
+      "unreadCount": 1,
+      "messages": [
+        {
+          "id": "msg-welcome",
+          "sender": "bot",
+          "text": "Assalam-o-Alaikum! 🌟 ProService Customer Support me khushamdeed. Mai aapki kya madad kar sakta hoon?",
+          "quickReplies": [
+            "📹 Camera Installation",
+            "💻 Computer Repair",
+            "⚡ Electricity Problem",
+            "🖨️ Printer Problem",
+            "👨‍💼 Live Agent"
+          ],
+          "timestamp": "2026-09-08T13:02:07.951Z"
+        },
+        {
+          "id": "msg-1788872527962",
+          "sender": "customer",
+          "text": "Mujhe CCTV camera installation chahiye",
+          "timestamp": "2026-09-08T13:02:07.962Z"
+        },
+        {
+          "id": "bot-1788872528569",
+          "sender": "bot",
+          "text": "📹 **CCTV & Camera Installation Services**:\n\n• HD, 2K & 4K IP Camera Setup\n• Night Vision & ColorVu Cameras\n• Mobile App Live-View configuration\n• DVR/NVR Hard Drive Storage Setup\n• Home, Shop, Warehouse & Office installations\n\n💰 **Starting Price**: Rs. 2,500 (Wiring & Installation)\n⏱️ **Availability**: Same day technician visit available.\n\nKya aap camera lagwana chahte hain ya quotation chahiye?",
+          "quickReplies": [
+            "Book Camera Service",
+            "Camera Prices",
+            "Talk to CCTV Tech",
+            "Main Menu"
+          ],
+          "timestamp": "2026-09-08T13:02:08.569Z"
+        }
+      ],
+      "lastMessage": "Mujhe CCTV camera installation chahiye"
+    },
+    "test_session_1788872556105": {
+      "sessionId": "test_session_1788872556105",
+      "customerName": "Ali Raza",
+      "phone": "0300-9988776",
+      "status": "live",
+      "createdAt": "2026-09-08T13:02:36.167Z",
+      "updatedAt": "2026-09-08T13:02:36.802Z",
+      "unreadCount": 0,
+      "messages": [
+        {
+          "id": "msg-welcome",
+          "sender": "bot",
+          "text": "Assalam-o-Alaikum! 🌟 ProService Customer Support me khushamdeed. Mai aapki kya madad kar sakta hoon?",
+          "quickReplies": [
+            "📹 Camera Installation",
+            "💻 Computer Repair",
+            "⚡ Electricity Problem",
+            "🖨️ Printer Problem",
+            "👨‍💼 Live Agent"
+          ],
+          "timestamp": "2026-09-08T13:02:36.167Z"
+        },
+        {
+          "id": "msg-1788872556172",
+          "sender": "customer",
+          "text": "Bijli ka short circuit ho gaya hai",
+          "timestamp": "2026-09-08T13:02:36.172Z"
+        },
+        {
+          "id": "bot-1788872556779",
+          "sender": "bot",
+          "text": "⚡ **Electricity Problem & 24/7 Emergency Support**:\n\n• Short circuit diagnostics & immediate emergency fix\n• Main DB Breaker tripping problem\n• Complete home & commercial concealed wiring\n• UPS & Solar Inverter connections\n• Switchboard, lights & heavy load wiring\n\n🚨 **Emergency Response**: 30-45 minutes me electrician aapke ghar pohnch sakta hai!\n💰 **Starting Cost**: Rs. 1,200",
+          "quickReplies": [
+            "🚨 Emergency Electrician",
+            "Book Wiring Work",
+            "UPS Setup Help",
+            "Main Menu"
+          ],
+          "timestamp": "2026-09-08T13:02:36.779Z"
+        },
+        {
+          "id": "agent-1788872556802",
+          "sender": "agent",
+          "agentName": "Support Manager",
+          "text": "Electrician dispatched right away!",
+          "timestamp": "2026-09-08T13:02:36.802Z"
+        }
+      ],
+      "lastMessage": "Electrician dispatched right away!"
+    }
+  },
+  "inquiries": [
+    {
+      "id": "INQ-5456",
+      "name": "Farhan Ali",
+      "email": "farhan@hospital.com",
+      "phone": "",
+      "subject": "Annual Maintenance Contract",
+      "message": "Need quotation for 50 computers maintenance.",
+      "status": "unread",
+      "createdAt": "2026-09-08T13:00:31.576Z"
+    },
+    {
+      "id": "INQ-1001",
+      "name": "Rashid Minhas",
+      "email": "rashid@example.com",
+      "phone": "0300-9988776",
+      "subject": "Corporate CCTV Contract",
+      "message": "Looking for a maintenance contract for 32 cameras in our textile factory.",
+      "status": "unread",
+      "createdAt": "2026-09-08T00:58:54.896Z"
+    }
+  ],
+  "reviews": [
+    {
+      "id": "REV-347",
+      "ticketId": "TKT-29279",
+      "customerName": "Kashif Mehmood",
+      "serviceType": "camera",
+      "rating": 5,
+      "comment": "Very professional CCTV installation!",
+      "createdAt": "2026-09-08T13:00:31.594Z"
+    },
+    {
+      "id": "REV-501",
+      "ticketId": "TKT-82913",
+      "customerName": "Bilal Ahmed",
+      "serviceType": "printer",
+      "rating": 5,
+      "comment": "Super fast service! Naveed fixed our HP printer paper jam in less than an hour.",
+      "createdAt": "2026-09-08T02:58:54.896Z"
+    }
+  ]
+}

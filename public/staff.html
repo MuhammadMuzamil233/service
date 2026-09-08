@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ProService - Field Staff & Technician Portal</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Socket.IO -->
+  <script src="/socket.io/socket.io.js"></script>
+  <!-- Google Fonts -->
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased">
+
+  <!-- Staff Top Bar -->
+  <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center text-white shadow-lg shadow-emerald-600/30">
+          <i data-lucide="wrench" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h1 class="text-base font-extrabold text-white flex items-center gap-2">
+            ProService <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Field Staff Portal</span>
+          </h1>
+          <span class="text-[10px] text-slate-400">Assigned Jobs & Customer Dispatch Desk</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <!-- Logged In Staff Badge -->
+        <div id="staffBadge" class="hidden sm:flex items-center gap-2.5 bg-slate-800/80 border border-slate-700 px-3 py-1.5 rounded-xl text-xs">
+          <div class="w-7 h-7 rounded-lg bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 font-bold">
+            <span id="staffAvatarInitial">T</span>
+          </div>
+          <div>
+            <div id="staffNameDisplay" class="font-bold text-white text-xs">Technician</div>
+            <div id="staffSpecialtyDisplay" class="text-[10px] text-emerald-400 font-medium">Specialist</div>
+          </div>
+          <button id="staffLogoutBtn" title="Log Out" class="ml-2 p-1 text-slate-400 hover:text-red-400 transition">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <a href="/admin" target="_blank" class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-700 transition">
+          <i data-lucide="shield" class="w-3.5 h-3.5 text-blue-400"></i>
+          <span>Admin Console</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Quick Switcher Bar (For testing & switching technicians) -->
+  <div class="bg-slate-900/60 border-b border-slate-800/80 py-2.5 px-4 overflow-x-auto">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-4 text-xs">
+      <div class="flex items-center gap-2 flex-shrink-0 text-slate-400">
+        <i data-lucide="users" class="w-4 h-4 text-blue-400"></i>
+        <span class="font-semibold text-white">Quick Switch Staff:</span>
+      </div>
+      <div class="flex items-center gap-2 flex-wrap">
+        <button onclick="switchStaffMember('TECH-101')" class="staff-switch-btn px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-[11px] font-medium transition flex items-center gap-1">
+          📹 Engr. Zohaib (CCTV)
+        </button>
+        <button onclick="switchStaffMember('TECH-102')" class="staff-switch-btn px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-[11px] font-medium transition flex items-center gap-1">
+          💻 Hamza (Computer)
+        </button>
+        <button onclick="switchStaffMember('TECH-103')" class="staff-switch-btn px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-[11px] font-medium transition flex items-center gap-1">
+          ⚡ Ustad Aslam (Electrician)
+        </button>
+        <button onclick="switchStaffMember('TECH-104')" class="staff-switch-btn px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-[11px] font-medium transition flex items-center gap-1">
+          🖨️ Naveed (Printer)
+        </button>
+        <button onclick="switchStaffMember('TECH-105')" class="staff-switch-btn px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-[11px] font-medium transition flex items-center gap-1">
+          📹 Engr. Salman (Camera)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full flex flex-col gap-6">
+
+    <!-- Metrics Cards -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div class="glass-card p-4 rounded-2xl border border-slate-800 bg-slate-900/60 shadow-lg">
+        <div class="text-xs text-slate-400 font-medium flex items-center justify-between">
+          <span>Assigned to Me</span>
+          <i data-lucide="inbox" class="w-4 h-4 text-blue-400"></i>
+        </div>
+        <div id="statStaffTotal" class="text-2xl font-black text-white mt-1">0</div>
+        <div class="text-[11px] text-blue-400 mt-0.5">Total active & completed</div>
+      </div>
+
+      <div class="glass-card p-4 rounded-2xl border border-slate-800 bg-slate-900/60 shadow-lg">
+        <div class="text-xs text-slate-400 font-medium flex items-center justify-between">
+          <span>New / Pending</span>
+          <i data-lucide="clock" class="w-4 h-4 text-amber-400"></i>
+        </div>
+        <div id="statStaffAssigned" class="text-2xl font-black text-amber-400 mt-1">0</div>
+        <div class="text-[11px] text-amber-400/80 mt-0.5">Awaiting start</div>
+      </div>
+
+      <div class="glass-card p-4 rounded-2xl border border-slate-800 bg-slate-900/60 shadow-lg">
+        <div class="text-xs text-slate-400 font-medium flex items-center justify-between">
+          <span>In Progress</span>
+          <i data-lucide="play-circle" class="w-4 h-4 text-blue-400"></i>
+        </div>
+        <div id="statStaffInProgress" class="text-2xl font-black text-blue-400 mt-1">0</div>
+        <div class="text-[11px] text-blue-400/80 mt-0.5">Currently working</div>
+      </div>
+
+      <div class="glass-card p-4 rounded-2xl border border-slate-800 bg-slate-900/60 shadow-lg">
+        <div class="text-xs text-slate-400 font-medium flex items-center justify-between">
+          <span>Completed</span>
+          <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+        </div>
+        <div id="statStaffCompleted" class="text-2xl font-black text-emerald-400 mt-1">0</div>
+        <div class="text-[11px] text-emerald-400/80 mt-0.5">Jobs finished</div>
+      </div>
+    </div>
+
+    <!-- Toolbar: Filters & Refresh -->
+    <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-900/50 p-3 rounded-2xl border border-slate-800">
+      <div class="flex items-center gap-1.5 text-xs">
+        <button data-filter="all" class="staff-filter-btn px-3 py-1.5 rounded-xl bg-blue-600 text-white font-semibold transition">
+          All My Jobs
+        </button>
+        <button data-filter="assigned" class="staff-filter-btn px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
+          Pending Start
+        </button>
+        <button data-filter="in progress" class="staff-filter-btn px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
+          In Progress
+        </button>
+        <button data-filter="completed" class="staff-filter-btn px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
+          Completed
+        </button>
+      </div>
+
+      <div class="text-xs text-slate-400 flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+        <span>Real-time Live Dispatch Active</span>
+      </div>
+    </div>
+
+    <!-- Jobs Grid -->
+    <div id="staffJobsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div class="col-span-full p-12 text-center text-slate-400">
+        <i data-lucide="loader-2" class="w-8 h-8 mx-auto animate-spin mb-3 text-emerald-400"></i>
+        <p class="text-sm font-semibold text-white">Loading your assigned jobs...</p>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Complete Job Modal -->
+  <div id="completeJobModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="glass-card bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl shadow-2xl p-6">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+        <h3 class="font-bold text-white text-base flex items-center gap-2">
+          <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-400"></i> Complete Service Job
+        </h3>
+        <button onclick="closeCompleteModal()" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="text-xs text-slate-400 mb-4">
+        Ticket: <strong id="completeModalTicketId" class="text-blue-400 font-mono">TKT-00000</strong>
+      </div>
+
+      <form id="completeJobForm" class="space-y-3.5 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Resolution Summary / Work Done *</label>
+          <textarea id="completeWorkNotes" required rows="3" placeholder="e.g. Replaced faulty circuit breaker and tested all socket voltage. Everything working smoothly." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"></textarea>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Parts Replaced (Optional)</label>
+          <input type="text" id="completeParts" placeholder="e.g. 32A Breaker, 10m 7/29 copper wire" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Final Service Bill / Charges (Rs.)</label>
+          <input type="number" id="completeCost" placeholder="e.g. 2500" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <div class="pt-2 flex justify-end gap-2">
+          <button type="button" onclick="closeCompleteModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition shadow-lg shadow-emerald-600/30">
+            Submit & Mark Completed
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Staff Login Modal (If logged out) -->
+  <div id="staffLoginModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+    <div class="glass-card bg-slate-900 border border-slate-700 w-full max-w-sm rounded-2xl shadow-2xl p-6 text-center">
+      <div class="w-12 h-12 rounded-xl bg-emerald-600 flex items-center justify-center text-white mx-auto shadow-lg shadow-emerald-600/30 mb-3">
+        <i data-lucide="wrench" class="w-6 h-6"></i>
+      </div>
+      <h3 class="font-extrabold text-white text-lg" id="modalTitle">Field Staff Portal</h3>
+      <p class="text-xs text-slate-400 mt-1 mb-4" id="modalSubtitle">Sign in or register your technician profile</p>
+
+      <!-- Tab Switcher: Sign In vs Sign Up -->
+      <div class="flex items-center gap-1 bg-slate-800 p-1 rounded-xl border border-slate-700 mb-4 text-xs font-semibold">
+        <button type="button" id="tabSignInBtn" onclick="toggleStaffAuthMode('signin')" class="flex-1 py-1.5 rounded-lg bg-emerald-600 text-white transition flex items-center justify-center gap-1">
+          <i data-lucide="log-in" class="w-3.5 h-3.5"></i> Sign In
+        </button>
+        <button type="button" id="tabSignUpBtn" onclick="toggleStaffAuthMode('signup')" class="flex-1 py-1.5 rounded-lg text-slate-300 hover:text-white transition flex items-center justify-center gap-1">
+          <i data-lucide="user-plus" class="w-3.5 h-3.5"></i> Register / Sign Up
+        </button>
+      </div>
+
+      <div id="staffLoginError" class="hidden mb-3 p-2.5 rounded-xl bg-red-500/20 text-red-300 text-xs border border-red-500/30 text-left"></div>
+
+      <!-- VIEW 1: SIGN IN -->
+      <div id="staffSignInSection">
+        <!-- 1-Click Technician Selector -->
+        <div class="mb-4 text-left">
+          <label class="block text-[11px] font-semibold text-slate-300 mb-1.5">⚡ 1-Click Quick Demo Login:</label>
+          <div class="space-y-1.5">
+            <button onclick="quickLoginStaff('TECH-101')" class="w-full py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-left text-xs text-white transition flex items-center justify-between">
+              <span>📹 Engr. Zohaib</span>
+              <span class="text-[10px] text-emerald-400">CCTV Specialist</span>
+            </button>
+            <button onclick="quickLoginStaff('TECH-102')" class="w-full py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-left text-xs text-white transition flex items-center justify-between">
+              <span>💻 Hamza IT Specialist</span>
+              <span class="text-[10px] text-blue-400">Computer Tech</span>
+            </button>
+            <button onclick="quickLoginStaff('TECH-103')" class="w-full py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-left text-xs text-white transition flex items-center justify-between">
+              <span>⚡ Ustad Aslam</span>
+              <span class="text-[10px] text-amber-400">Certified Electrician</span>
+            </button>
+            <button onclick="quickLoginStaff('TECH-104')" class="w-full py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-left text-xs text-white transition flex items-center justify-between">
+              <span>🖨️ Naveed</span>
+              <span class="text-[10px] text-purple-400">Printer Expert</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="relative flex py-2 items-center">
+          <div class="flex-grow border-t border-slate-800"></div>
+          <span class="flex-shrink mx-2 text-[10px] text-slate-500 uppercase">Or sign in with password</span>
+          <div class="flex-grow border-t border-slate-800"></div>
+        </div>
+
+        <form id="staffLoginForm" class="space-y-3 text-left text-xs mt-2">
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Email Address</label>
+            <input type="email" id="staffEmail" required placeholder="e.g. zohaib@proservice.com" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Password</label>
+            <input type="password" id="staffPassword" required placeholder="tech123" value="tech123" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+          </div>
+          <button type="submit" id="staffLoginSubmitBtn" class="w-full mt-2 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition shadow-lg shadow-emerald-600/30">
+            Sign In to Staff Desk
+          </button>
+        </form>
+      </div>
+
+      <!-- VIEW 2: SIGN UP / REGISTER -->
+      <div id="staffSignUpSection" class="hidden text-left">
+        <form id="staffRegisterForm" class="space-y-3 text-xs">
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Full Name *</label>
+            <input type="text" id="regName" required placeholder="e.g. Engr. Bilal Farooq" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block font-semibold text-slate-300 mb-1">Email *</label>
+              <input type="email" id="regEmail" required placeholder="bilal@service.com" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-300 mb-1">Phone Number *</label>
+              <input type="tel" id="regPhone" required placeholder="0300-1234567" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+            </div>
+          </div>
+
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Service Specialty *</label>
+            <select id="regSpecialty" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500">
+              <option value="camera">📹 Camera Installation & CCTV</option>
+              <option value="computer">💻 Computer & Laptop Repair</option>
+              <option value="electricity">⚡ Electricity Problem & Wiring</option>
+              <option value="printer">🖨️ Printer Problem & Repair</option>
+              <option value="general">🛠️ General Technician</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">City / Base Address</label>
+            <input type="text" id="regAddress" placeholder="e.g. Gulberg, Lahore" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+          </div>
+
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Create Password *</label>
+            <input type="password" id="regPassword" required minlength="6" placeholder="At least 6 characters" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+          </div>
+
+          <button type="submit" id="staffRegSubmitBtn" class="w-full mt-3 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition shadow-lg shadow-emerald-600/30">
+            Register & Join Field Staff
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/staff.js"></script>
+</body>
+</html>

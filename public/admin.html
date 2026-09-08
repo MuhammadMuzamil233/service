@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ProService - Admin & Live Support Agent Console</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Socket.IO -->
+  <script src="/socket.io/socket.io.js"></script>
+  <!-- Google Fonts -->
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased">
+
+  <!-- Admin Top Bar -->
+  <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+      <div class="flex items-center gap-4">
+        <a href="/admin" class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-md">
+            <i data-lucide="shield-alert" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h1 class="text-base font-extrabold text-white">ProService Console</h1>
+            <span class="text-[10px] text-blue-400 font-semibold tracking-wider uppercase">Live Chat & Ticket Control</span>
+          </div>
+        </a>
+
+        <!-- Navigation Tabs -->
+        <div class="hidden sm:flex items-center gap-1 ml-6 bg-slate-800 p-1 rounded-xl border border-slate-700">
+          <button id="tabBtnChats" onclick="switchTab('chats')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition bg-blue-600 text-white flex items-center gap-1.5">
+            <i data-lucide="message-square" class="w-4 h-4"></i> Live Chat Desk
+            <span id="statLiveChats" class="ml-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full">0</span>
+          </button>
+          <button id="tabBtnTickets" onclick="switchTab('tickets')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white transition flex items-center gap-1.5">
+            <i data-lucide="ticket" class="w-4 h-4"></i> Service Tickets
+          </button>
+          <button id="tabBtnStaff" onclick="switchTab('staff')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white transition flex items-center gap-1.5">
+            <i data-lucide="users" class="w-4 h-4"></i> Field Staff (<span id="statStaffCount">0</span>)
+          </button>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <!-- Agent Identity -->
+        <div class="hidden md:flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 text-xs">
+          <span class="text-slate-400">Agent:</span>
+          <input type="text" id="agentNameInput" value="Support Agent" class="bg-transparent border-b border-slate-600 focus:border-blue-400 focus:outline-none text-white font-semibold w-28 text-xs">
+        </div>
+
+        <!-- Admin Auth Status -->
+        <div id="adminUserBadge" class="hidden sm:flex items-center gap-2 bg-blue-950/60 border border-blue-800/60 px-3 py-1.5 rounded-lg text-xs">
+          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+          <span id="adminUserName" class="text-blue-300 font-semibold truncate max-w-[110px]">Super Admin</span>
+          <button id="adminLogoutBtn" title="Logout" class="text-slate-400 hover:text-red-400 ml-1 transition">
+            <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+
+        <a href="/staff" target="_blank" class="px-3 py-1.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 text-xs font-semibold border border-emerald-500/30 transition flex items-center gap-1.5">
+          <i data-lucide="wrench" class="w-3.5 h-3.5 text-emerald-400"></i>
+          <span>Field Staff Portal ↗</span>
+        </a>
+
+        <a href="/" target="_blank" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition flex items-center gap-1.5">
+          <i data-lucide="external-link" class="w-3.5 h-3.5 text-blue-400"></i>
+          <span>Customer Site</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full flex flex-col gap-6">
+
+    <!-- KPI Stats Cards -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div class="glass-card p-4 rounded-xl border border-slate-800 bg-slate-900/60">
+        <div class="text-xs text-slate-400 font-medium">Total Bookings</div>
+        <div id="statTotalTickets" class="text-2xl font-black text-white mt-1">0</div>
+        <div class="text-[11px] text-blue-400 mt-0.5">All customer tickets</div>
+      </div>
+
+      <div class="glass-card p-4 rounded-xl border border-slate-800 bg-slate-900/60">
+        <div class="text-xs text-slate-400 font-medium">Pending Assignment</div>
+        <div id="statPending" class="text-2xl font-black text-red-400 mt-1">0</div>
+        <div class="text-[11px] text-red-400/80 mt-0.5">Requires technician</div>
+      </div>
+
+      <div class="glass-card p-4 rounded-xl border border-slate-800 bg-slate-900/60">
+        <div class="text-xs text-slate-400 font-medium">In Progress</div>
+        <div id="statInProgress" class="text-2xl font-black text-amber-400 mt-1">0</div>
+        <div class="text-[11px] text-amber-400/80 mt-0.5">Technicians active</div>
+      </div>
+
+      <div class="glass-card p-4 rounded-xl border border-slate-800 bg-slate-900/60">
+        <div class="text-xs text-slate-400 font-medium">Completed Jobs</div>
+        <div id="statCompleted" class="text-2xl font-black text-emerald-400 mt-1">0</div>
+        <div class="text-[11px] text-emerald-400/80 mt-0.5">Resolved & closed</div>
+      </div>
+    </div>
+
+    <!-- ================= VIEW 1: LIVE CHAT SUPPORT DESK ================= -->
+    <section id="viewChats" class="flex-1 flex flex-col lg:flex-row gap-6 min-h-[580px]">
+      <!-- Left Column: Customer Chat Sessions List -->
+      <div class="w-full lg:w-80 glass-card bg-slate-900 border border-slate-800 rounded-2xl flex flex-col overflow-hidden shadow-xl">
+        <div class="p-4 border-b border-slate-800 bg-slate-800/40 flex items-center justify-between">
+          <div class="font-bold text-sm text-white flex items-center gap-2">
+            <i data-lucide="inbox" class="w-4 h-4 text-blue-400"></i> Customer Chats
+          </div>
+          <span class="text-[11px] text-slate-400">Live feed</span>
+        </div>
+
+        <!-- Chat List Items -->
+        <div id="chatSessionsList" class="flex-1 overflow-y-auto divide-y divide-slate-800/60">
+          <div class="p-8 text-center text-xs text-slate-400">
+            <i data-lucide="loader-2" class="w-5 h-5 mx-auto animate-spin mb-2 text-blue-400"></i>
+            Loading chat sessions...
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Active Conversation Workspace -->
+      <div class="flex-1 glass-card bg-slate-900 border border-slate-800 rounded-2xl flex flex-col overflow-hidden shadow-xl relative">
+        <!-- Chat Header -->
+        <div id="activeChatHeader" class="p-4 bg-slate-800/60 border-b border-slate-800 flex items-center min-h-[68px]">
+          <div class="text-sm text-slate-400 flex items-center gap-2">
+            <i data-lucide="message-square" class="w-4 h-4 text-slate-500"></i>
+            Select a customer from the left list to begin real-time support.
+          </div>
+        </div>
+
+        <!-- Empty Placeholder -->
+        <div id="chatEmptyPlaceholder" class="flex-1 flex flex-col items-center justify-center p-8 text-center">
+          <div class="w-16 h-16 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 mb-4">
+            <i data-lucide="headset" class="w-8 h-8"></i>
+          </div>
+          <h4 class="font-bold text-lg text-white">Live Customer Chat Desk</h4>
+          <p class="text-xs text-slate-400 max-w-sm mt-1">
+            Incoming inquiries from website visitors regarding Camera, Computer, Electricity, and Printer problems appear here in real-time.
+          </p>
+        </div>
+
+        <!-- Messages Flow -->
+        <div id="activeChatMessages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-950/40"></div>
+
+        <!-- Typing Notification -->
+        <div id="customerTypingNotice" class="hidden px-4 py-1.5 bg-slate-900 text-xs text-blue-400 font-medium border-t border-slate-800 animate-pulse">
+          Customer is typing a message...
+        </div>
+
+        <!-- Admin Input Area -->
+        <div id="adminChatInputArea" class="hidden p-3.5 bg-slate-900 border-t border-slate-800">
+          <form id="adminMsgForm" class="flex items-center gap-2">
+            <input type="text" id="adminMsgInput" placeholder="Type real-time reply to customer..." class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-blue-500">
+            <button type="submit" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-md shadow-blue-600/30 transition flex items-center gap-1.5">
+              <i data-lucide="send" class="w-4 h-4"></i> Send
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= VIEW 2: SERVICE TICKETS MANAGER ================= -->
+    <section id="viewTickets" class="hidden flex-1 flex flex-col glass-card bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+      <!-- Toolbar -->
+      <div class="p-4 bg-slate-800/50 border-b border-slate-800 flex flex-wrap items-center justify-between gap-4">
+        <!-- Filter Tabs -->
+        <div class="flex flex-wrap items-center gap-1.5 text-xs">
+          <button data-filter="all" class="ticket-filter-btn px-3 py-1.5 rounded-lg bg-blue-600 text-white font-semibold transition">
+            All Tickets
+          </button>
+          <button data-filter="camera" class="ticket-filter-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
+            📹 Camera
+          </button>
+          <button data-filter="computer" class="ticket-filter-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
+            💻 Computer
+          </button>
+          <button data-filter="electricity" class="ticket-filter-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
+            ⚡ Electricity
+          </button>
+          <button data-filter="printer" class="ticket-filter-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
+            🖨️ Printer
+          </button>
+          <button data-filter="pending" class="ticket-filter-btn px-3 py-1.5 rounded-lg bg-red-500/20 text-red-300 hover:bg-red-500/30 border border-red-500/30 transition">
+            ⚠️ Pending Only
+          </button>
+        </div>
+
+        <!-- Search Bar & Action -->
+        <div class="flex items-center gap-2.5 w-full sm:w-auto">
+          <div class="w-full sm:w-60">
+            <input type="text" id="ticketSearchInput" placeholder="Search ID, name, phone..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+          </div>
+          <button onclick="openCreateTaskModal()" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md shadow-emerald-600/30 transition flex items-center gap-1.5 flex-shrink-0">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            <span>Create & Assign Task</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tickets Table -->
+      <div class="overflow-x-auto flex-1">
+        <table class="w-full text-left text-xs text-slate-300">
+          <thead class="bg-slate-950/60 text-slate-400 font-bold uppercase tracking-wider border-b border-slate-800">
+            <tr>
+              <th class="py-3 px-4">Ticket ID</th>
+              <th class="py-3 px-4">Customer</th>
+              <th class="py-3 px-4">Service & Issue</th>
+              <th class="py-3 px-4">Address</th>
+              <th class="py-3 px-4">Urgency</th>
+              <th class="py-3 px-4">Status</th>
+              <th class="py-3 px-4">Actions / Tech</th>
+            </tr>
+          </thead>
+          <tbody id="ticketsTableBody">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================= VIEW 3: FIELD STAFF ROSTER & MANAGEMENT ================= -->
+    <section id="viewStaff" class="hidden flex-1 flex flex-col glass-card bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+      <!-- Toolbar -->
+      <div class="p-4 bg-slate-800/50 border-b border-slate-800 flex flex-wrap items-center justify-between gap-4">
+        <!-- Status Filter Pills -->
+        <div class="flex flex-wrap items-center gap-1.5 text-xs">
+          <button data-staff-filter="all" class="staff-filter-btn px-3 py-1.5 rounded-lg bg-blue-600 text-white font-semibold transition">
+            All Staff (<span id="staffFilterCountAll">0</span>)
+          </button>
+          <button data-staff-filter="available" class="staff-filter-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Available (<span id="staffFilterCountAvailable">0</span>)
+          </button>
+          <button data-staff-filter="busy" class="staff-filter-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-amber-400"></span> Busy (<span id="staffFilterCountBusy">0</span>)
+          </button>
+          <button data-staff-filter="on-leave" class="staff-filter-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-purple-400"></span> On Leave (<span id="staffFilterCountLeave">0</span>)
+          </button>
+        </div>
+
+        <!-- Search Bar & Add Staff Button -->
+        <div class="flex items-center gap-2.5 w-full sm:w-auto">
+          <div class="w-full sm:w-60">
+            <input type="text" id="staffSearchInput" placeholder="Search staff name, phone, skill..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+          </div>
+          <button onclick="openAddStaffModal()" class="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-md shadow-blue-600/30 transition flex items-center gap-1.5 flex-shrink-0">
+            <i data-lucide="user-plus" class="w-4 h-4"></i>
+            <span>Add New Staff</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Staff Roster Cards Container -->
+      <div class="p-5 flex-1 overflow-y-auto">
+        <div id="staffRosterGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= CREATE & ASSIGN TASK MODAL ================= -->
+  <div id="createTaskModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="glass-card bg-slate-900 border border-slate-700 w-full max-w-lg rounded-2xl shadow-2xl p-6">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+        <h3 class="font-bold text-white text-base flex items-center gap-2">
+          <i data-lucide="plus-circle" class="w-5 h-5 text-emerald-400"></i> Create & Assign Task to Staff
+        </h3>
+        <button onclick="closeCreateTaskModal()" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="adminCreateTaskForm" class="space-y-3 text-xs">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Customer Name *</label>
+            <input type="text" id="newTaskCustomer" required placeholder="e.g. Tariq Mahmood" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Customer Phone *</label>
+            <input type="tel" id="newTaskPhone" required placeholder="0300-1234567" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Service Category *</label>
+            <select id="newTaskService" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500">
+              <option value="camera">📹 Camera Installation (CCTV)</option>
+              <option value="computer">💻 Computer & Laptop Repair</option>
+              <option value="electricity">⚡ Electricity Problem & Wiring</option>
+              <option value="printer">🖨️ Printer Problem & Repair</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Urgency Level *</label>
+            <select id="newTaskUrgency" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500">
+              <option value="Standard">Standard</option>
+              <option value="Emergency">🚨 Emergency (Immediate)</option>
+              <option value="Scheduled">Scheduled</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Customer Address / Location *</label>
+          <input type="text" id="newTaskAddress" required placeholder="e.g. House #12, Street 4, Sector F-8/2, Islamabad" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Problem Description</label>
+          <textarea id="newTaskDesc" rows="2" placeholder="e.g. Main breaker tripping continuously, sparking in bedroom socket." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"></textarea>
+        </div>
+
+        <!-- Assign To Staff Member -->
+        <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
+          <label class="block font-bold text-emerald-400 mb-1 flex items-center gap-1.5">
+            <i data-lucide="user-check" class="w-4 h-4"></i> Assign Directly to Staff Member *
+          </label>
+          <select id="newTaskStaffSelect" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white text-xs focus:outline-none focus:border-emerald-500">
+            <option value="">-- Choose Registered Staff Member --</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Admin Dispatch Notes</label>
+            <input type="text" id="newTaskNotes" placeholder="e.g. Customer at home after 4pm" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Estimated Cost (Rs.)</label>
+            <input type="number" id="newTaskCost" placeholder="2500" value="2500" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+          </div>
+        </div>
+
+        <div class="pt-3 flex justify-end gap-2 border-t border-slate-800">
+          <button type="button" onclick="closeCreateTaskModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition">Cancel</button>
+          <button type="submit" id="submitCreateTaskBtn" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition shadow-lg shadow-emerald-600/30 flex items-center gap-1.5">
+            <i data-lucide="send" class="w-3.5 h-3.5"></i>
+            <span>Create & Dispatch Task</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= ASSIGN TECHNICIAN MODAL ================= -->
+  <div id="assignModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="glass-card bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl shadow-2xl p-6">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+        <h3 class="font-bold text-white text-base flex items-center gap-2">
+          <i data-lucide="user-check" class="w-5 h-5 text-blue-400"></i> Assign Technician
+        </h3>
+        <button onclick="closeAssignModal()" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="text-xs text-slate-400 mb-4">
+        Ticket: <strong id="assignTicketId" class="text-blue-400 font-mono">TKT-00000</strong> for <strong id="assignCustomer" class="text-white">Customer</strong>
+      </div>
+
+      <div class="space-y-3.5 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Select from Available Specialists</label>
+          <select id="assignTechSelect" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 mb-2">
+            <option value="">-- Choose a Registered Technician --</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Or Enter Custom Technician / Phone</label>
+          <input type="text" id="assignTechName" placeholder="e.g. Engr. Hamza (0301-2345678)" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Internal Notes / Customer Update</label>
+          <textarea id="assignNotes" rows="3" placeholder="e.g. Technician arriving in 25 mins with replacement parts." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"></textarea>
+        </div>
+      </div>
+
+      <div class="mt-6 flex justify-end gap-2">
+        <button onclick="closeAssignModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition">Cancel</button>
+        <button id="saveAssignBtn" class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition">Save & Notify Customer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= ADMIN LOGIN MODAL ================= -->
+  <div id="adminLoginModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+    <div class="glass-card bg-slate-900 border border-slate-700 w-full max-w-sm rounded-2xl shadow-2xl p-6 text-center">
+      <div class="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center text-white mx-auto shadow-lg shadow-blue-600/30 mb-3">
+        <i data-lucide="shield-check" class="w-6 h-6"></i>
+      </div>
+      <h3 class="font-extrabold text-white text-lg">ProService Admin Portal</h3>
+      <p class="text-xs text-slate-400 mt-1 mb-5">Sign in to manage live chats, tickets and technicians</p>
+
+      <div id="loginError" class="hidden mb-4 p-2.5 rounded-xl bg-red-500/20 text-red-300 text-xs border border-red-500/30"></div>
+
+      <form id="adminLoginForm" class="space-y-3 text-left text-xs">
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Admin Email</label>
+          <input type="email" id="loginEmail" required value="admin@proservice.com" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Password</label>
+          <input type="password" id="loginPassword" required value="admin123" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+        </div>
+        <button type="submit" id="loginSubmitBtn" class="w-full mt-2 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold transition shadow-lg shadow-blue-600/30">
+          Sign In to Dashboard
+        </button>
+      </form>
+
+      <div class="mt-4 pt-3 border-t border-slate-800">
+        <button id="quickDemoLoginBtn" type="button" class="w-full py-1.5 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-blue-400 text-xs font-semibold border border-blue-500/20 transition flex items-center justify-center gap-1.5">
+          <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+          <span>Quick 1-Click Demo Login</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= ADD NEW STAFF MODAL ================= -->
+  <div id="addStaffModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="glass-card bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl shadow-2xl p-6">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+        <h3 class="font-bold text-white text-base flex items-center gap-2">
+          <i data-lucide="user-plus" class="w-5 h-5 text-blue-400"></i> Add New Field Staff Member
+        </h3>
+        <button onclick="closeAddStaffModal()" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="addStaffForm" class="space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Full Name *</label>
+          <input type="text" id="newStaffName" required placeholder="e.g. Engr. Hamza Khan" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Phone Number *</label>
+            <input type="tel" id="newStaffPhone" required placeholder="0300-1234567" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Specialty *</label>
+            <select id="newStaffSpecialty" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-blue-500">
+              <option value="camera">📹 Camera (CCTV)</option>
+              <option value="computer">💻 Computer & IT</option>
+              <option value="electricity">⚡ Electricity</option>
+              <option value="printer">🖨️ Printer & Copier</option>
+              <option value="general">🔧 General Multi-Skill</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Email (Optional)</label>
+            <input type="email" id="newStaffEmail" placeholder="hamza@proservice.com" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Initial Status</label>
+            <select id="newStaffStatus" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-blue-500">
+              <option value="available">🟢 Available</option>
+              <option value="busy">🟡 Busy</option>
+              <option value="on-leave">🟣 On Leave</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Staff Portal Login Password</label>
+          <input type="password" id="newStaffPassword" placeholder="Default: tech123" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+          <span class="text-[10px] text-slate-400">Staff can use this to sign into /staff portal. Default: tech123</span>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">City / Service Territory</label>
+          <input type="text" id="newStaffAddress" placeholder="e.g. Islamabad / Rawalpindi" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div class="pt-3 flex justify-end gap-2 border-t border-slate-800">
+          <button type="button" onclick="closeAddStaffModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition">Cancel</button>
+          <button type="submit" id="submitAddStaffBtn" class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition shadow-lg shadow-blue-600/30 flex items-center gap-1.5">
+            <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+            <span>Register Staff</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    function switchTab(tab) {
+      const viewChats = document.getElementById('viewChats');
+      const viewTickets = document.getElementById('viewTickets');
+      const viewStaff = document.getElementById('viewStaff');
+      const tabBtnChats = document.getElementById('tabBtnChats');
+      const tabBtnTickets = document.getElementById('tabBtnTickets');
+      const tabBtnStaff = document.getElementById('tabBtnStaff');
+
+      const activeBtnClass = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition bg-blue-600 text-white flex items-center gap-1.5';
+      const inactiveBtnClass = 'px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white transition flex items-center gap-1.5';
+
+      if (viewChats) viewChats.classList.add('hidden');
+      if (viewTickets) viewTickets.classList.add('hidden');
+      if (viewStaff) viewStaff.classList.add('hidden');
+
+      if (tabBtnChats) tabBtnChats.className = inactiveBtnClass;
+      if (tabBtnTickets) tabBtnTickets.className = inactiveBtnClass;
+      if (tabBtnStaff) tabBtnStaff.className = inactiveBtnClass;
+
+      if (tab === 'chats') {
+        if (viewChats) viewChats.classList.remove('hidden');
+        if (tabBtnChats) tabBtnChats.className = activeBtnClass;
+      } else if (tab === 'tickets') {
+        if (viewTickets) viewTickets.classList.remove('hidden');
+        if (tabBtnTickets) tabBtnTickets.className = activeBtnClass;
+      } else if (tab === 'staff') {
+        if (viewStaff) viewStaff.classList.remove('hidden');
+        if (tabBtnStaff) tabBtnStaff.className = activeBtnClass;
+        if (window.loadStaffRoster) window.loadStaffRoster();
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+  </script>
+  <script src="/js/admin.js"></script>
+</body>
+</html>
