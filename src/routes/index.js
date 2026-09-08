@@ -23,6 +23,42 @@ router.get('/health', (req, res) => {
   });
 });
 
+// REST Chat Endpoint (Fallback for Vercel - no Socket.IO needed)
+router.post('/chat', (req, res) => {
+  try {
+    const { analyzeBotResponse } = require('../services/chatbotService');
+    const { message, sessionId } = req.body;
+    if (!message) {
+      return res.status(400).json({ success: false, message: 'message required' });
+    }
+    const reply = analyzeBotResponse(message, { sessionId });
+    res.json({
+      success: true,
+      reply: {
+        sender: 'bot',
+        text: reply.text,
+        quickReplies: reply.quickReplies || [],
+        timestamp: new Date().toISOString()
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Chat service error.' });
+  }
+});
+
+// REST Chat Greeting Endpoint
+router.get('/chat/greeting', (req, res) => {
+  res.json({
+    success: true,
+    reply: {
+      sender: 'bot',
+      text: "Assalam-o-Alaikum! 🌟 Welcome to ProService Support! Mai aapki kis tarah madad kar sakta hoon?\n\nHumari core services:\n1️⃣ 📹 Camera Installation (CCTV)\n2️⃣ 💻 Computer & Laptop Repair\n3️⃣ ⚡ Electricity Problem (Bijli ka Masla)\n4️⃣ 🖨️ Printer Problem & Toner\n\nAap niche button se select kar sakte hain ya apna masla likh kar bata sakte hain.",
+      quickReplies: ['📹 Camera Installation', '💻 Computer Repair', '⚡ Electricity Problem', '🖨️ Printer Problem', '🎫 Track My Ticket', '👨‍💼 Talk to Agent'],
+      timestamp: new Date().toISOString()
+    }
+  });
+});
+
 // Mount Resource Routes
 router.use('/auth', authRoutes);
 router.use('/tickets', ticketRoutes);

@@ -84,11 +84,12 @@
   const typingIndicator = document.getElementById('typingIndicator');
   const typingText = document.getElementById('typingText');
 
-  // Connect Socket.IO
+  // Connect Socket.IO (may fail on Vercel - graceful fallback to REST)
   let socket = null;
+  let socketConnected = false;
   try {
     if (typeof io === 'function') {
-      socket = io({ transports: ['websocket', 'polling'], timeout: 5000, reconnectionAttempts: 3 });
+      socket = io({ transports: ['websocket', 'polling'], timeout: 5000, reconnectionAttempts: 2 });
     }
   } catch (e) {
     console.warn('Socket.IO bypassed:', e);
@@ -97,8 +98,52 @@
     socket = { on: () => {}, emit: () => {} };
   }
 
-  // Join session on connect
+  // REST-based chat send (fallback when socket not connected)
+  async function sendMessageViaREST(text) {
+    try {
+      showTyping('🤖 ProService Bot is typing...');
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text, sessionId })
+      });
+      const data = await res.json();
+      hideTyping();
+      if (data.success && data.reply) {
+        appendMessage(data.reply, true);
+        sound.playReceive();
+        notifyIfClosed();
+      }
+    } catch (err) {
+      hideTyping();
+      appendMessage({ sender: 'bot', text: 'Sorry, network error. Please try again.', timestamp: new Date().toISOString() }, true);
+    }
+  }
+
+  // Load initial greeting via REST (works even without socket)
+  async function loadGreetingViaREST() {
+    try {
+      const res = await fetch('/api/chat/greeting');
+      const data = await res.json();
+      if (data.success && data.reply) {
+        appendMessage(data.reply, false);
+        scrollToBottom();
+      }
+    } catch (err) {
+      // Hardcoded fallback greeting if API also fails
+      appendMessage({
+        sender: 'bot',
+        text: 'Assalam-o-Alaikum! 🌟 Welcome to ProService Support! Aap Camera, Computer, Electricity ya Printer service ke baare mein puchh sakte hain.',
+        quickReplies: ['📹 Camera', '💻 Computer', '⚡ Electricity', '🖨️ Printer', '👨‍💼 Live Agent'],
+        timestamp: new Date().toISOString()
+      }, false);
+      scrollToBottom();
+    }
+  }
+
+  // Join session on connect (Socket.IO)
   socket.on('connect', () => {
+    socketConnected = true;
     socket.emit('customer_join', {
       sessionId,
       customerName,
@@ -106,8 +151,13 @@
     });
   });
 
-  // Receive full chat history on load
+  socket.on('disconnect', () => {
+    socketConnected = false;
+  });
+
+  // Receive full chat history on load (Socket.IO path)
   socket.on('chat_history', (session) => {
+    greetingShown = true; // Prevent REST greeting from also firing
     chatMessages.innerHTML = '';
     updateModeDisplay(session.status);
 
@@ -294,16 +344,19 @@
       chatInput.value = '';
     }
 
-    // Emit via Socket.IO
-    socket.emit('customer_message', {
-      sessionId,
-      text,
-      customerName,
-      phone: customerPhone
-    });
-
-    // Reset typing status
-    socket.emit('customer_typing', { sessionId, isTyping: false });
+    if (socketConnected) {
+      // Use Socket.IO if connected
+      socket.emit('customer_message', {
+        sessionId,
+        text,
+        customerName,
+        phone: customerPhone
+      });
+      socket.emit('customer_typing', { sessionId, isTyping: false });
+    } else {
+      // REST fallback (Vercel / no socket)
+      sendMessageViaREST(text);
+    }
   }
 
   function scrollToBottom() {
@@ -311,6 +364,9 @@
       chatMessages.scrollTop = chatMessages.scrollHeight;
     }, 50);
   }
+
+  // Track if greeting has been shown
+  let greetingShown = false;
 
   // Event Listeners
   launcher.addEventListener('click', () => {
@@ -322,12 +378,18 @@
         unreadBadge.classList.add('hidden');
         unreadBadge.innerText = '0';
       }
+      // Show greeting on first open if no chat history loaded via socket
+      if (!greetingShown && chatMessages.children.length === 0) {
+        greetingShown = true;
+        loadGreetingViaREST();
+      }
       scrollToBottom();
       setTimeout(() => chatInput.focus(), 250);
     } else {
       chatWindow.classList.remove('active');
     }
   });
+
 
   closeChatBtn.addEventListener('click', () => {
     isOpen = false;
