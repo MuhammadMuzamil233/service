@@ -21,15 +21,14 @@ class TicketService {
     const serviceName = matchedService ? matchedService.title : serviceType;
     const basePrice = matchedService ? matchedService.basePriceNum || 1500 : 1500;
 
-    // Check if explicit technician was specified by Admin, else try auto-matching
+    // Only assign technician if Admin explicitly specified one (not auto-matched)
     let targetTech = null;
     if (assignedTechId) {
       targetTech = (db.technicians || []).find(tech => tech.id === assignedTechId);
     } else if (assignedTo) {
       targetTech = (db.technicians || []).find(tech => tech.name === assignedTo);
-    } else {
-      targetTech = (db.technicians || []).find(tech => tech.specialty === serviceType && tech.status === 'available');
     }
+    // No auto-assign: customer bookings stay "Pending" until admin assigns manually
 
     const assignedName = targetTech ? targetTech.name : (assignedTo || null);
     const assignedId = targetTech ? targetTech.id : (assignedTechId || null);
