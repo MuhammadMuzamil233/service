@@ -66,15 +66,17 @@ app.get('*', (req, res) => {
 app.use(errorHandler);
 
 // Start Server
-server.listen(PORT, () => {
-  console.log(`===================================================`);
-  console.log(`🚀 ProService Customer Services Platform`);
-  console.log(`⚙️  Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`👉 Customer Portal: http://localhost:${PORT}`);
-  console.log(`👉 Admin Dashboard: http://localhost:${PORT}/admin`);
-  console.log(`👉 API Health:     http://localhost:${PORT}/api/health`);
-  console.log(`👉 Database:       ${isMongoConnected() ? '🍃 MongoDB Atlas (Connected)' : '📁 Local JSON DB (data/db.json)'}`);
-  console.log(`===================================================`);
-});
+if (!process.env.VERCEL) {
+  server.listen(PORT, () => {
+    console.log(`===================================================`);
+    console.log(`🚀 ProService Customer Services Platform`);
+    console.log(`⚙️  Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`👉 Customer Portal: http://localhost:${PORT}`);
+    console.log(`👉 Admin Dashboard: http://localhost:${PORT}/admin`);
+    console.log(`👉 API Health:     http://localhost:${PORT}/api/health`);
+    console.log(`👉 Database:       ${isMongoConnected() ? '🍃 MongoDB Atlas (Connected)' : '📁 Local JSON DB (data/db.json)'}`);
+    console.log(`===================================================`);
+  });
+}
 
-module.exports = { app, server };
+module.exports = app;

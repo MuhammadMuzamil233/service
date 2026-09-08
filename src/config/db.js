@@ -3,8 +3,10 @@ const path = require('path');
 const bcrypt = require('bcryptjs');
 const { DEFAULT_SERVICES, DEFAULT_TECHNICIANS } = require('./constants');
 
-const DATA_DIR = path.join(__dirname, '..', '..', 'data');
+const isVercel = !!process.env.VERCEL;
+const DATA_DIR = isVercel ? '/tmp/data' : path.join(__dirname, '..', '..', 'data');
 const DB_FILE = path.join(DATA_DIR, 'db.json');
+const BUNDLED_DB_FILE = path.join(__dirname, '..', '..', 'data', 'db.json');
 
 // Memory cache
 let dbCache = null;
@@ -152,24 +154,35 @@ function getInitialDb() {
 
 // Read database with validation and auto-healing
 function readDb() {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+  } catch (e) {}
+
+  // On Vercel, copy bundled db.json to /tmp if not present
+  if (isVercel && !fs.existsSync(DB_FILE) && fs.existsSync(BUNDLED_DB_FILE)) {
+    try {
+      fs.copyFileSync(BUNDLED_DB_FILE, DB_FILE);
+    } catch (e) {}
   }
 
-  if (!fs.existsSync(DB_FILE)) {
+  const fileToRead = fs.existsSync(DB_FILE) ? DB_FILE : (fs.existsSync(BUNDLED_DB_FILE) ? BUNDLED_DB_FILE : null);
+
+  if (!fileToRead) {
     dbCache = getInitialDb();
-    saveDbSync(dbCache);
+    try { saveDbSync(dbCache); } catch (e) {}
     return dbCache;
   }
 
   try {
-    const stats = fs.statSync(DB_FILE);
+    const stats = fs.statSync(fileToRead);
     if (dbCache && stats.mtimeMs <= lastMtime) {
       return dbCache;
     }
     lastMtime = stats.mtimeMs;
 
-    const raw = fs.readFileSync(DB_FILE, 'utf8');
+    const raw = fs.readFileSync(fileToRead, 'utf8');
     const parsed = JSON.parse(raw);
     const initial = getInitialDb();
 
@@ -199,18 +212,20 @@ function readDb() {
       }
     });
 
-    saveDbSync(dbCache);
+    try { saveDbSync(dbCache); } catch (e) {}
 
     return dbCache;
   } catch (err) {
-    console.error('Error reading db.json, creating fresh backup:', err);
-    dbCache = getInitialDb();
-    saveDbSync(dbCache);
+    console.error('Error reading database file, using in-memory state:', err.message);
+    if (!dbCache) {
+      dbCache = getInitialDb();
+    }
+    try { saveDbSync(dbCache); } catch (e) {}
     return dbCache;
   }
 }
 
-// Thread-safe atomic file save
+// Thread-safe atomic file save (fails gracefully on read-only environments)
 function saveDbSync(data) {
   try {
     const tempFile = `${DB_FILE}.tmp.${Date.now()}`;
@@ -220,7 +235,8 @@ function saveDbSync(data) {
       lastMtime = fs.statSync(DB_FILE).mtimeMs;
     } catch (e) {}
   } catch (err) {
-    console.error('Error saving db.json:', err);
+    // Non-fatal on serverless
+    console.warn('Notice: File save bypassed or limited:', err.message);
   }
 }
 
