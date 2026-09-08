@@ -4,7 +4,17 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  const socket = io();
+  let socket = null;
+  try {
+    if (typeof io === 'function') {
+      socket = io({ transports: ['websocket', 'polling'], timeout: 5000, reconnectionAttempts: 3 });
+    }
+  } catch (e) {
+    console.warn('Socket.IO bypassed:', e);
+  }
+  if (!socket) {
+    socket = { on: () => {}, emit: () => {} };
+  }
 
   let authToken = localStorage.getItem('proservice_staff_token') || '';
   let currentStaffUser = null;

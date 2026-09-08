@@ -4,7 +4,17 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  const socket = io();
+  let socket = null;
+  try {
+    if (typeof io === 'function') {
+      socket = io({ transports: ['websocket', 'polling'], timeout: 5000, reconnectionAttempts: 3 });
+    }
+  } catch (e) {
+    console.warn('Socket.IO initialization bypassed:', e);
+  }
+  if (!socket) {
+    socket = { on: () => {}, emit: () => {} };
+  }
 
   let activeSessionId = null;
   let allSessions = [];
@@ -80,12 +90,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Socket Connection
-  socket.on('connect', () => {
-    console.log('Connected as Admin to Socket.IO');
-    socket.emit('admin_join');
-    checkAuth().then(() => loadInitialData());
-  });
+  // Initialize Dashboard immediately via REST APIs
+  checkAuth().then(() => loadInitialData());
+
+  // Real-Time Socket Connection (if supported)
+  if (socket && typeof socket.on === 'function') {
+    socket.on('connect', () => {
+      console.log('Connected as Admin to Socket.IO');
+      socket.emit('admin_join');
+    });
+  }
 
   async function loadInitialData() {
     try {
